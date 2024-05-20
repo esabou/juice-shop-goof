@@ -1,5 +1,4 @@
-# FROM node:20-buster as installer
-FROM node:18.13.0
+FROM node:20-buster as installer
 COPY . /juice-shop
 WORKDIR /juice-shop
 RUN npm i -g typescript ts-node
