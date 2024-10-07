@@ -6,6 +6,7 @@ steps:
   - script: |
       npm install
 
+
   - task: SnykSecurityScan@1
     inputs:
       serviceConnectionEndpoint: 'Snyk_API_TOKEN'
@@ -13,3 +14,4 @@ steps:
       severityThreshold: 'critical'
       monitorWhen: 'always'
       failOnIssues: true
+      additionalArguments: '--fail-on=all'
