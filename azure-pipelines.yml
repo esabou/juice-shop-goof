@@ -31,11 +31,11 @@ steps:
     continueOnError: true  # Allow it to continue even if it fails
 
   # Publish HTML Reports
-  - task: PublishHtmlReport@1
-    condition: succeededOrFailed()
-    inputs:
-      reportDir: $(Build.ArtifactStagingDirectory)/results-code.html
-      tabName: 'Snyk Code'
+  # - task: PublishHtmlReport@1
+  #   condition: succeededOrFailed()
+  #   inputs:
+  #     reportDir: $(Build.ArtifactStagingDirectory)/results-code.html
+  #     tabName: 'Snyk Code'
 
   - task: PublishHtmlReport@1
     condition: succeededOrFailed()
@@ -44,10 +44,10 @@ steps:
       tabName: 'Snyk Open Source'
 
   # Publish Build Artifacts
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: Snyk Reports
+  # - task: PublishBuildArtifacts@1
+  #  inputs:
+  #     pathToPublish: '$(Build.ArtifactStagingDirectory)'
+  #     artifactName: Snyk Reports
 
   # Snyk Monitor
   - script: |
