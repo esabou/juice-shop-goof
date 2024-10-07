@@ -1,19 +1,69 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+pool: Azure Pipelines
 
-trigger:
-- main
-
-pool:
-  vmImage: ubuntu-latest
+variables:
+  - group: Snyk variables
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - checkout: self
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  # Install & prepare Snyk
+  - script: |
+      npm install -g snyk snyk-to-html
+      snyk auth $(SNYK_TOKEN)
+    displayName: 'Snyk install & auth'
+
+  # Snyk Code
+  - script: |
+      snyk code test --sarif-file-output=results.sarif
+      RESULT=$?
+      snyk-to-html -o $(Build.ArtifactStagingDirectory)/results-code.html < results.sarif
+      echo "##vso[task.setvariable variable=SNYK_CODE_RESULT]$RESULT"
+    displayName: 'Running Snyk Code'
+    continueOnError: true  # Allow it to continue even if it fails
+
+  # Snyk Open Source
+  - script: |
+      snyk test --all-projects --json-file-output=results.json
+      RESULT=$?
+      snyk-to-html -o $(Build.ArtifactStagingDirectory)/results-open-source.html < results.json
+      echo "##vso[task.setvariable variable=SNYK_OPEN_SOURCE_RESULT]$RESULT"
+    displayName: 'Running Snyk Open Source'
+    continueOnError: true  # Allow it to continue even if it fails
+
+  # Publish HTML Reports
+  - task: PublishHtmlReport@1
+    condition: succeededOrFailed()
+    inputs:
+      reportDir: $(Build.ArtifactStagingDirectory)/results-code.html
+      tabName: 'Snyk Code'
+
+  - task: PublishHtmlReport@1
+    condition: succeededOrFailed()
+    inputs:
+      reportDir: $(Build.ArtifactStagingDirectory)/results-open-source.html
+      tabName: 'Snyk Open Source'
+
+  # Publish Build Artifacts
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: Snyk Reports
+
+  # Snyk Monitor
+  - script: |
+      snyk monitor --all-projects --org=1141b3e2-d0e9-43da-af89-49cef9ecac38
+      RESULT=$?
+      echo "##vso[task.setvariable variable=SNYK_MONITOR_RESULT]$RESULT"
+    displayName: 'Running Snyk Monitor'
+    # continueOnError: true  # Allow it to continue even if it fails
+
+  # Final step to determine the overall result
+  - script: |
+      if [ $(SNYK_CODE_RESULT) -ne 0 ] || [ $(SNYK_OPEN_SOURCE_RESULT) -ne 0 ] || [ $(SNYK_MONITOR_RESULT) -ne 0 ]; then
+        echo "Snyk tests failed!"
+        exit 1
+      else
+        echo "All Snyk tests passed!"
+      fi
+    displayName: 'Evaluate Results'
+    condition: always()  # This ensures this step runs regardless of earlier failures
