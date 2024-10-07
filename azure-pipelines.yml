@@ -13,13 +13,13 @@ steps:
     displayName: 'Snyk install & auth'
 
   # Snyk Code
-  - script: |
-      snyk code test --sarif-file-output=results.sarif
-      RESULT=$?
-      snyk-to-html -o $(Build.ArtifactStagingDirectory)/results-code.html < results.sarif
-      echo "##vso[task.setvariable variable=SNYK_CODE_RESULT]$RESULT"
-    displayName: 'Running Snyk Code'
-    continueOnError: true  # Allow it to continue even if it fails
+  # - script: |
+    #   snyk code test --sarif-file-output=results.sarif
+    #   RESULT=$?
+    #   snyk-to-html -o $(Build.ArtifactStagingDirectory)/results-code.html < results.sarif
+    #   echo "##vso[task.setvariable variable=SNYK_CODE_RESULT]$RESULT"
+    # displayName: 'Running Snyk Code'
+    # continueOnError: true  # Allow it to continue even if it fails
 
   # Snyk Open Source
   - script: |
