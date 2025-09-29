@@ -71,7 +71,7 @@ ARG VCS_REF
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.source="https://github.com/esabou/juice-shop-goof"
-LABEL io.snyk.containers.image.dockerfile="./Dockerfile"
+LABEL io.snyk.containers.image.dockerfile="Dockerfile"
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.revision=$VCS_REF
 
