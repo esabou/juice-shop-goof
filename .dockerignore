@@ -7,7 +7,6 @@ build/reports/
 dist/
 vagrant/
 logs/
-Dockerfile
 .npmrc
 /bom.json
 /bom.xml
